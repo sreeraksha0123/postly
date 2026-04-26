@@ -1,26 +1,31 @@
-import express from 'express';
-import { webhookCallback } from 'grammy';
-import { bot } from '../services/telegram.js';
-import dotenv from 'dotenv';
-dotenv.config();
+import { Router } from 'express'
+import { bot } from '../services/telegram.js'
+import { webhookCallback } from 'grammy'
 
-const router = express.Router();
+const router = Router()
 
-const { WEBHOOK_SECRET } = process.env;
-
-/**
- * Telegram Webhook Handler
- */
-router.post('/webhook', (req, res, next) => {
-  // Verify secret token from Telegram headers
-  const secretToken = req.headers['x-telegram-bot-api-secret-token'];
-  
-  if (secretToken !== WEBHOOK_SECRET) {
-      console.warn('[WEBHOOK] Unauthorized access attempt');
-      return res.status(403).json({ error: 'Unauthorized' });
+router.post('/webhook', async (req, res) => {
+  // Verify Telegram secret token
+  const secretToken = req.headers['x-telegram-bot-api-secret-token']
+  if (process.env.WEBHOOK_SECRET && secretToken !== process.env.WEBHOOK_SECRET) {
+    return res.status(403).json({ error: 'Forbidden' })
   }
 
-  return webhookCallback(bot, 'express')(req, res, next);
-});
+  try {
+    await webhookCallback(bot, 'express')(req, res)
+  } catch (err) {
+    console.error('[Bot] Webhook error:', err.message)
+    res.status(200).json({ ok: true }) // Always return 200 to Telegram
+  }
+})
 
-export default router;
+router.get('/status', async (req, res) => {
+  try {
+    const info = await bot.api.getWebhookInfo()
+    res.json({ data: info, error: null })
+  } catch (err) {
+    res.json({ data: null, error: { message: err.message } })
+  }
+})
+
+export default router

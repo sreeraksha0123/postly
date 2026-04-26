@@ -14,6 +14,15 @@ import dashboardRoutes from './routes/dashboard.js'
 
 const app = express()
 
+// Health Check - MUST be first, before any middleware, auth, or rate limiters
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  })
+})
+
 // Security & Middleware
 app.use(helmet())
 app.use(cors())
@@ -26,11 +35,6 @@ const limiter = rateLimit({
   message: { data: null, error: { message: 'Too many requests, please try again later', code: 'RATE_LIMIT' } }
 })
 app.use('/api', limiter)
-
-// Health Check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
-})
 
 // Routes
 app.use('/api/auth', authRoutes)
