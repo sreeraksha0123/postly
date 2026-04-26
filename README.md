@@ -1,7 +1,18 @@
 # Postly — Multi-Platform AI Content Publishing Engine 🚀
 
-> **Live API**: [https://postly.up.railway.app](https://postly.up.railway.app)
-> **Telegram Bot**: [@PostlyAIBot](https://t.me/PostlyAIBot) (Sample link)
+## 🚀 Live API
+
+https://web-production-2e4e19.up.railway.app
+
+### Health Check
+
+https://web-production-2e4e19.up.railway.app/health
+
+---
+
+## 🤖 Telegram Bot
+
+[https://t.me/postlypub_bot](https://t.me/postlypub_bot)
 
 Postly is a production-ready, AI-driven content publishing engine designed to empower creators to manage their social presence across multiple platforms simultaneously. From a single idea, Postly generates tailored, platform-compliant content and orchestrates the publishing journey through a resilient background queue.
 
