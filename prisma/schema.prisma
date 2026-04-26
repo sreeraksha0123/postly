@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Platform {
+  TWITTER
+  LINKEDIN
+  INSTAGRAM
+  THREADS
+}
+
+enum PostType {
+  ANNOUNCEMENT
+  THREAD
+  STORY
+  PROMOTIONAL
+  EDUCATIONAL
+  OPINION
+}
+
+enum PostStatus {
+  DRAFT
+  QUEUED
+  PROCESSING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+enum PlatformPostStatus {
+  QUEUED
+  PROCESSING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+model User {
+  id              String          @id @default(cuid())
+  email           String          @unique
+  passwordHash    String
+  name            String
+  bio             String?
+  defaultTone     String          @default("professional")
+  defaultLanguage String          @default("en")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  socialAccounts  SocialAccount[]
+  aiKeys          AiKeys?
+  posts           Post[]
+  refreshTokens   RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  isRevoked Boolean  @default(false)
+
+  @@index([userId, isRevoked])
+}
+
+model SocialAccount {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform       Platform
+  accessTokenEnc String
+  refreshTokenEnc String?
+  handle         String
+  connectedAt    DateTime @default(now())
+
+  @@unique([userId, platform])
+}
+
+model AiKeys {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  openaiKeyEnc     String?
+  anthropicKeyEnc  String?
+  updatedAt        DateTime @updatedAt
+}
+
+model Post {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea          String
+  postType      PostType
+  tone          String
+  language      String         @default("en")
+  modelUsed     String
+  status        PostStatus
+  publishAt     DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  platformPosts PlatformPost[]
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
+}
+
+model PlatformPost {
+  id           String             @id @default(uuid())
+  postId       String
+  post         Post               @relation(fields: [postId], references: [id], onDelete: Cascade)
+  platform     Platform
+  content      String
+  status       PlatformPostStatus
+  publishedAt  DateTime?
+  errorMessage String?
+  attempts     Int                @default(0)
+  createdAt    DateTime           @default(now())
+
+  @@index([postId, platform])
+  @@index([status])
+}
