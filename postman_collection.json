@@ -1,0 +1,269 @@
+{
+	"info": {
+		"_postman_id": "postly-backend-api-collection",
+		"name": "Postly API",
+		"description": "API collection for Postly - AI-driven multi-platform content publishing engine.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\",\n    \"name\": \"John Doe\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.accessToken) {",
+									"    pm.collectionVariables.set(\"accessToken\", jsonData.data.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api", "auth", "refresh"] }
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] }
+					}
+				},
+				{
+					"name": "Get Profile (Me)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get Profile Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/user/profile", "host": ["{{baseUrl}}"], "path": ["api", "user", "profile"] }
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Updated\",\n    \"bio\": \"New Bio\",\n    \"defaultTone\": \"witty\",\n    \"defaultLanguage\": \"en\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/user/profile", "host": ["{{baseUrl}}"], "path": ["api", "user", "profile"] }
+					}
+				},
+				{
+					"name": "Connect Social Account",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"platform\": \"TWITTER\",\n    \"accessToken\": \"mock-token-xyz\",\n    \"handle\": \"johndoe_ai\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/user/social-accounts", "host": ["{{baseUrl}}"], "path": ["api", "user", "social-accounts"] }
+					}
+				},
+				{
+					"name": "List Social Accounts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/user/social-accounts", "host": ["{{baseUrl}}"], "path": ["api", "user", "social-accounts"] }
+					}
+				},
+				{
+					"name": "Update AI Keys",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"openaiKey\": \"sk-test-key-123\",\n    \"anthropicKey\": \"ant-test-key-123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/user/ai-keys", "host": ["{{baseUrl}}"], "path": ["api", "user", "ai-keys"] }
+					}
+				},
+				{
+					"name": "Disconnect Social Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/user/social-accounts/:id", "host": ["{{baseUrl}}"], "path": ["api", "user", "social-accounts", ":id"], "variable": [{"key": "id", "value": ""}] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Content",
+			"item": [
+				{
+					"name": "Generate Multi-Platform Content",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idea\": \"The future of agentic AI coding assistants in 2026.\",\n    \"postType\": \"educational\",\n    \"platforms\": [\"twitter\", \"linkedin\", \"threads\"],\n    \"tone\": \"authoritative\",\n    \"language\": \"en\",\n    \"model\": \"openai\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/content/generate", "host": ["{{baseUrl}}"], "path": ["api", "content", "generate"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Publish Immediately",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idea\": \"How to build a SaaS in 24 hours with Postly.\",\n    \"postType\": \"promotional\",\n    \"platforms\": [\"twitter\", \"linkedin\"],\n    \"tone\": \"witty\",\n    \"language\": \"en\",\n    \"model\": \"anthropic\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/posts/publish", "host": ["{{baseUrl}}"], "path": ["api", "posts", "publish"] }
+					}
+				},
+				{
+					"name": "Schedule Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idea\": \"The importance of consistency in content creation.\",\n    \"postType\": \"opinion\",\n    \"platforms\": [\"twitter\", \"linkedin\", \"instagram\"],\n    \"tone\": \"friendly\",\n    \"language\": \"en\",\n    \"model\": \"openai\",\n    \"publishAt\": \"2026-05-01T10:00:00Z\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/posts/schedule", "host": ["{{baseUrl}}"], "path": ["api", "posts", "schedule"] }
+					}
+				},
+				{
+					"name": "List Posts (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/posts?page=1&limit=10&status=PUBLISHED",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "posts"],
+							"query": [
+								{ "key": "page", "value": "1" },
+								{ "key": "limit", "value": "10" },
+								{ "key": "status", "value": "PUBLISHED" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Post Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/posts/:id", "host": ["{{baseUrl}}"], "path": ["api", "posts", ":id"], "variable": [{"key": "id", "value": ""}] }
+					}
+				},
+				{
+					"name": "Retry Failed Platform Posts",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/posts/:id/retry", "host": ["{{baseUrl}}"], "path": ["api", "posts", ":id", "retry"], "variable": [{"key": "id", "value": ""}] }
+					}
+				},
+				{
+					"name": "Cancel Post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/posts/:id", "host": ["{{baseUrl}}"], "path": ["api", "posts", ":id"], "variable": [{"key": "id", "value": ""}] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{baseUrl}}/api/dashboard/stats", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "stats"] }
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "https://postly.up.railway.app", "type": "string" },
+		{ "key": "accessToken", "value": "", "type": "string" },
+		{ "key": "refreshToken", "value": "", "type": "string" }
+	]
+}
