@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
 # Required for Prisma binary compatibility
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++
 
 WORKDIR /app
 
