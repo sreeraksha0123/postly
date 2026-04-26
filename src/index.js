@@ -12,6 +12,13 @@ const NODE_ENV = process.env.NODE_ENV || 'development'
 
 async function start() {
   try {
+    console.log('[Postly] Starting up...')
+    console.log('[Postly] NODE_ENV:', process.env.NODE_ENV)
+    console.log('[Postly] PORT:', process.env.PORT)
+    console.log('[Postly] DATABASE_URL exists:', !!process.env.DATABASE_URL)
+    console.log('[Postly] REDIS_URL exists:', !!process.env.REDIS_URL)
+    console.log('[Postly] TELEGRAM_BOT_TOKEN exists:', !!process.env.TELEGRAM_BOT_TOKEN)
+
     // STEP 1: Start HTTP server FIRST on 0.0.0.0
     // Railway healthcheck needs /health to respond before anything else
     const server = app.listen(PORT, '0.0.0.0', () => {
