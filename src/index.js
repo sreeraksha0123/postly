@@ -18,11 +18,15 @@ async function start() {
 
     // 2. Telegram Bot Configuration
     if (NODE_ENV === 'production') {
-      const webhookUrl = `${process.env.TELEGRAM_WEBHOOK_URL}/api/bot/webhook`
-      await bot.api.setWebhook(webhookUrl, {
-        secret_token: process.env.WEBHOOK_SECRET
-      })
-      console.log(`[Postly] Bot webhook set: ${webhookUrl}`)
+      try {
+        const webhookUrl = process.env.TELEGRAM_WEBHOOK_URL
+        await bot.api.setWebhook(webhookUrl, {
+          secret_token: process.env.WEBHOOK_SECRET
+        })
+        console.log(`[Postly] Bot webhook set: ${webhookUrl}`)
+      } catch (botError) {
+        console.error('[Postly] Bot webhook setup failed (non-fatal):', botError.message)
+      }
     } else {
       bot.start()
       console.log('[Postly] Bot polling started (Development mode)')
