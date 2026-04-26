@@ -1,16 +1,18 @@
 FROM node:18-alpine
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl python3 make g++ libc6-compat
 
 WORKDIR /app
 
 COPY package*.json ./
+
 RUN npm install --production=false
 
 COPY prisma ./prisma
+
 RUN npx prisma generate
 
-COPY src ./src
+COPY . .
 
 EXPOSE 3000
 
