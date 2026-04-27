@@ -148,6 +148,17 @@ The tests cover Auth, Content generation, and the Queue.
 
 ---
 
+## 🧪 Development Notes
+
+This project involved multiple iterations to resolve real-world deployment issues, including:
+
+- Docker + Alpine compatibility (OpenSSL, bcrypt)
+- Railway healthcheck failures due to async startup
+- Redis TLS and connection handling
+- Prisma engine compatibility in containerized environments
+
+Each issue was debugged and resolved to ensure a stable production deployment.
+
 ## AI Model Architecture
 
 Postly supports two model options throughout the API: `openai` and `anthropic`.
