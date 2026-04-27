@@ -1,16 +1,10 @@
 import { Queue } from 'bullmq'
 import redis from '../config/redis.js'
 
-/**
- * Platform Publishing Queue
- */
 export const publishQueue = new Queue('platform-publish', {
   connection: redis
 })
 
-/**
- * Adds individual publishing jobs for each platform requested
- */
 export async function addPublishJobs(post, platformPosts) {
   const jobPromises = platformPosts.map((pp) => {
     return publishQueue.add(

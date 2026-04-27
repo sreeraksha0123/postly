@@ -2,9 +2,6 @@ import { z } from 'zod';
 import { generateContent as openaiGenerate } from './openai.js';
 import { generateContent as anthropicGenerate } from './anthropic.js';
 
-/**
- * Zod validation schema for content generation requests.
- */
 export const generateSchema = z.object({
   idea: z.string().min(1).max(500),
   postType: z.enum(['announcement', 'thread', 'story', 'promotional', 'educational', 'opinion']),
@@ -14,11 +11,9 @@ export const generateSchema = z.object({
   model: z.enum(['openai', 'anthropic'])
 });
 
-/**
- * Builds the platform-optimized system prompt
- */
 function buildSystemPrompt({ tone, language, postType, platforms }) {
   const rules = [];
+  // each platform has hard constraints that AI tends to ignore if not explicitly told
   if (platforms.includes('twitter')) {
     rules.push('- Twitter/X: MAXIMUM 280 characters total including hashtags. 2-3 hashtags. Strong punchy opener.');
   }
@@ -52,19 +47,13 @@ ${Object.entries(platformJsonShape).map(([k,v]) => `  "${k}": ${v}`).join(',\n')
 }`;
 }
 
-/**
- * Main Content Generation Orchestrator
- */
 export async function generatePlatformContent(params) {
-  // 1. Validate Input
   const validated = generateSchema.parse(params);
   const { idea, postType, platforms, tone, language, model } = validated;
 
-  // 2. Prepare Messages
   const systemPrompt = buildSystemPrompt({ tone, language, postType, platforms });
   const userMessage = `Core idea: ${idea}\nGenerate content for these platforms: ${platforms.join(', ')}`;
 
-  // 3. Route to specific provider (openai | anthropic)
   const service = model === 'openai' ? openaiGenerate : anthropicGenerate;
 
   const result = await service({
@@ -74,10 +63,10 @@ export async function generatePlatformContent(params) {
     prisma: params.prisma
   });
 
-  // 4. Enrich result with character counts
   const enriched = {};
   for (const platform of platforms) {
     if (result.generated[platform]) {
+      // char count helps frontends show "too long" warnings before the user even tries to publish
       enriched[platform] = {
         ...result.generated[platform],
         char_count: result.generated[platform].content.length

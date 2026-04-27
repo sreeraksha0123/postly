@@ -4,19 +4,13 @@ import crypto from 'crypto'
 import prisma from '../config/db.js'
 
 class AuthService {
-  /**
-   * Generates Access and Refresh tokens
-   */
   generateTokens(payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' })
-    // Use randomBytes for a non-deterministic, high-entropy refresh token
+    // refresh token is opaque random bytes, not JWT — can't be decoded by client
     const refreshToken = crypto.randomBytes(40).toString('hex')
     return { accessToken, refreshToken }
   }
 
-  /**
-   * Register logic
-   */
   async register({ email, password, name }) {
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) {
@@ -35,9 +29,6 @@ class AuthService {
     return user
   }
 
-  /**
-   * Login logic
-   */
   async login({ email, password }) {
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
@@ -73,11 +64,8 @@ class AuthService {
     }
   }
 
-  /**
-   * Refresh token rotation
-   */
   async refresh(oldToken) {
-    // Note: Refresh tokens are now opaque random strings, verified against DB only.
+    // verified against DB since opaque tokens have no internal state
     const tokenRecord = await prisma.refreshToken.findUnique({
       where: { token: oldToken },
       include: { user: true }
@@ -89,7 +77,7 @@ class AuthService {
       throw error
     }
 
-    // Revoke old
+    // burn the old one to prevent reuse
     await prisma.refreshToken.update({
       where: { id: tokenRecord.id },
       data: { isRevoked: true }
@@ -114,9 +102,6 @@ class AuthService {
     return { accessToken, refreshToken }
   }
 
-  /**
-   * Logout (revocation)
-   */
   async logout(token) {
     await prisma.refreshToken.updateMany({
       where: { token },
@@ -124,9 +109,6 @@ class AuthService {
     })
   }
 
-  /**
-   * Current user
-   */
   async me(userId) {
     return await prisma.user.findUnique({
       where: { id: userId },

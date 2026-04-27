@@ -1,10 +1,8 @@
 import { generateWithGroq } from './groq.js'
 
 export async function generateContent({ systemPrompt, userMessage, userId, prisma }) {
-  // TEMPORARY FALLBACK: Anthropic requires billing.
-  // Real integration below is commented — uncomment when ANTHROPIC_API_KEY is funded.
+  // anthropic requires credit funding upfront so we use groq until key is active
   /*
-  PRODUCTION CODE:
   import Anthropic from '@anthropic-ai/sdk'
   let apiKey = process.env.ANTHROPIC_API_KEY
   if (userId && prisma) {
@@ -26,7 +24,7 @@ export async function generateContent({ systemPrompt, userMessage, userId, prism
   return { generated: parsed, tokensUsed: response.usage.input_tokens + response.usage.output_tokens, model_used: 'claude-sonnet-4-5' }
   */
 
-  console.log('[Anthropic Service] Billing not active — routing to Groq fallback')
+  console.log('[Anthropic Service] Routing to Groq fallback')
   const result = await generateWithGroq({ systemPrompt, userMessage })
   return { ...result, model_used: 'groq-fallback (anthropic interface)' }
 }

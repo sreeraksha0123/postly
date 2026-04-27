@@ -28,7 +28,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const NODE_ENV = process.env.NODE_ENV || 'development'
 
-// Health endpoint registered immediately — before anything else
+// health must be first so railway can ping while modules are still loading
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
@@ -40,7 +40,7 @@ app.get('/health', (req, res) => {
 
 console.log('[Postly] Health endpoint registered')
 
-// Start server IMMEDIATELY — this must happen before any async operations
+// app.listen has to happen fast or container dies on startup
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`[Postly] ===== SERVER LISTENING ON PORT ${PORT} =====`)
 })
@@ -50,20 +50,17 @@ server.on('error', (err) => {
   process.exit(1)
 })
 
-// Load everything else AFTER server is listening
+// async imports prevent blocking the main thread while waiting for connections
 async function loadApp() {
   try {
     console.log('[Postly] Loading app modules...')
     
-    // Import app with all routes
     const { default: appRouter } = await import('./app.js')
     console.log('[Postly] App router loaded')
     
-    // Mount all routes onto the already-listening server
     app.use(appRouter)
     console.log('[Postly] Routes mounted')
     
-    // Database
     const { default: prisma } = await import('./config/db.js')
     try {
       await prisma.$connect()
@@ -72,7 +69,6 @@ async function loadApp() {
       console.error('[Postly] Database error (non-fatal):', dbErr.message)
     }
     
-    // Redis
     const { default: redis } = await import('./config/redis.js')
     try {
       await redis.connect()
@@ -81,7 +77,6 @@ async function loadApp() {
       console.error('[Postly] Redis error (non-fatal):', redisErr.message)
     }
     
-    // Workers
     try {
       await import('./queue/workers/platformWorker.js')
       console.log('[Postly] Workers initialized')
@@ -89,7 +84,6 @@ async function loadApp() {
       console.error('[Postly] Worker error (non-fatal):', workerErr.message)
     }
     
-    // Telegram Bot
     try {
       const { bot } = await import('./services/telegram.js')
       if (NODE_ENV === 'production') {
@@ -117,11 +111,10 @@ async function loadApp() {
   } catch (err) {
     console.error('[Postly] loadApp error:', err.message)
     console.error(err.stack)
-    // Don't exit — server is still listening for healthcheck
+    // server is listening so healthcheck still passes even if modules fail
   }
 }
 
-// Graceful shutdown
 const shutdown = async (signal) => {
   console.log(`[Postly] ${signal} received`)
   server.close(() => console.log('[Postly] HTTP closed'))
@@ -139,5 +132,4 @@ const shutdown = async (signal) => {
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 process.on('SIGINT', () => shutdown('SIGINT'))
 
-// Load app after server starts
 loadApp()

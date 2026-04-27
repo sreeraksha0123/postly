@@ -4,9 +4,6 @@ dotenv.config()
 
 const { JWT_ACCESS_SECRET } = process.env
 
-/**
- * JWT Authentication Middleware
- */
 export default function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization
 
@@ -34,7 +31,7 @@ export default function authMiddleware(req, res, next) {
       })
     }
     
-    // Catch JsonWebTokenError or any other verification error
+    // catch anything else like bad signature or tampered payload
     return res.status(401).json({
       data: null,
       error: { message: 'Invalid token', code: 'INVALID_TOKEN' }

@@ -15,6 +15,7 @@ try {
       data: { status: 'PROCESSING', attempts: job.attemptsMade + 1 }
     })
 
+    // stub until we have real api creds for every platform
     console.log(`[Worker] Would post to ${platform}: ${content?.substring(0, 50)}...`)
     await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -24,6 +25,7 @@ try {
     })
 
     const all = await prisma.platformPost.findMany({ where: { postId } })
+    // check if this was the last platform job so we can flip the master post status
     const done = all.every(p => ['PUBLISHED','FAILED','CANCELLED'].includes(p.status))
     if (done) {
       const anyFailed = all.some(p => p.status === 'FAILED')

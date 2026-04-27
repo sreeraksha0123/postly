@@ -18,6 +18,7 @@ class UserService {
   }
 
   async addSocialAccount(userId, { platform, accessToken, refreshToken, handle }) {
+    // using unique index on [userId, platform] to prevent multiple connections for same service
     const existing = await prisma.socialAccount.findUnique({
         where: { userId_platform: { userId, platform } }
     })
@@ -51,6 +52,7 @@ class UserService {
     const account = await prisma.socialAccount.findUnique({ where: { id } })
     if (!account) throw new Error('Account not found')
     
+    // account belongs to a different user, bail
     if (account.userId !== userId) {
         const error = new Error('Forbidden')
         error.statusCode = 403

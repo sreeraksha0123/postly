@@ -16,6 +16,7 @@ export async function generateWithGroq({ systemPrompt, userMessage }) {
     max_tokens: 1000
   })
   const raw = response.choices[0].message.content
+  // LLMs love wrapping json in markdown blocks which breaks JSON.parse
   const cleaned = raw.replace(/```json|```/g, '').trim()
   try {
     return { generated: JSON.parse(cleaned), tokensUsed: response.usage.total_tokens }
