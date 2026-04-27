@@ -262,7 +262,7 @@
 		"bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
 	},
 	"variable": [
-		{ "key": "baseUrl", "value": "https://postly.up.railway.app", "type": "string" },
+		{ "key": "baseUrl", "value": "https://web-production-2e4e19.up.railway.app", "type": "string" },
 		{ "key": "accessToken", "value": "", "type": "string" },
 		{ "key": "refreshToken", "value": "", "type": "string" }
 	]

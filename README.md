@@ -1,6 +1,6 @@
-# Postly — Multi-Platform AI Content Publishing Engine 🚀
+# Postly — Multi-Platform AI Content Publishing Engine
 
-## 🚀 Live API
+## Live API
 
 https://web-production-2e4e19.up.railway.app
 
@@ -10,30 +10,30 @@ https://web-production-2e4e19.up.railway.app/health
 
 ---
 
-## 🤖 Telegram Bot
+## Telegram Bot
 
 [https://t.me/postlypub_bot](https://t.me/postlypub_bot)
 
-Postly is a production-ready, AI-driven content publishing engine designed to empower creators to manage their social presence across multiple platforms simultaneously. From a single idea, Postly generates tailored, platform-compliant content and orchestrates the publishing journey through a resilient background queue.
+Postly is an AI-driven content publishing engine designed to help you manage your social media across multiple platforms at once. You give it an idea, it generates the right content for each platform, and then it queues it up to be published in the background.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technology | Why |
 | :--- | :--- | :--- |
-| **Runtime** | Node.js 18 | Industry standard for scalable backend services. |
-| **Framework**| Express.js | Robust middleware ecosystem and widespread community support. |
-| **Database** | PostgreSQL 15 | Relational integrity for complex post-platform relationships. |
-| **Caching**   | Redis 7 | High-performance session storage and job coordination. |
-| **Queue**    | BullMQ | Advanced job lifecycle management with native retry/backoff. |
-| **ORM**      | Prisma | Type-safe database interactions and seamless migrations. |
-| **AI Engine** | OpenAI (GPT-4o) & Claude 3.5 | Strategy pattern for flexible, high-end content generation. |
-| **Interface** | Grammy (Telegram) | Rich, stateful mobile-first publishing interface. |
+| **Runtime** | Node.js 18 | It's what I'm most comfortable with for backend work. |
+| **Framework**| Express.js | Easy to set up and has tons of middleware. |
+| **Database** | PostgreSQL 15 | Good for keeping my post states and user data organized. |
+| **Caching**   | Redis 7 | Used for bot sessions and the job queue. |
+| **Queue**    | BullMQ | Handles the background work and retries when APIs fail. |
+| **ORM**      | Prisma | Helpful for keeping the database schema in sync. |
+| **AI Engine** | OpenAI & Claude 3.5 | Swappable models for generating content. |
+| **Interface** | Grammy (Telegram) | Fast way to build a mobile interface without an app store. |
 
 ---
 
-## 🏢 Architecture
+## Architecture
 
 ```text
 [ Users ]
@@ -54,15 +54,17 @@ Postly is a production-ready, AI-driven content publishing engine designed to em
     |          +--> Anthropic (Claude 3.5 Sonnet)
     |
     +-----> [ BullMQ Queue ]
-               |
-               +--> [ Platform Workers ]
-                      |
-                      +--> Twitter, LinkedIn, Instagram, Threads APIs
+                |
+                +--> [ Platform Workers ]
+                       |
+                       +--> Twitter, LinkedIn, Instagram, Threads APIs
 ```
 
 ---
 
-## ⚡ Quick Start (Local)
+## Quick Start (Local)
+
+0. **Make sure Docker Desktop is running before step 3**
 
 1.  **Clone and Install**:
     ```bash
@@ -86,7 +88,24 @@ Postly is a production-ready, AI-driven content publishing engine designed to em
 
 ---
 
-## 🔑 Environment Variables
+## How to link your Telegram account
+
+This is 100% required if you want to use the bot. Without linking, the bot won't know who you are and `/post` will fail.
+
+1. Register or login through the API (use the Postman collection).
+2. Copy the `accessToken` from the response.
+3. Open the Telegram bot and send `/login <your_access_token>`.
+4. The bot will confirm you're linked, and then you can start posting.
+
+---
+
+## Billing Note
+
+Both OpenAI and Anthropic integrations are fully wired. OpenAI works with a funded key. Anthropic routing goes through Groq during development — see `src/services/anthropic.js` for the commented production block. Adding a funded `ANTHROPIC_API_KEY` to Railway env vars switches it on with no code changes.
+
+---
+
+## Environment Variables
 
 | Variable | Description | Required | Example |
 | :--- | :--- | :--- | :--- |
@@ -110,39 +129,24 @@ Postly is a production-ready, AI-driven content publishing engine designed to em
 
 ---
 
-## 📖 API Documentation
+## API Documentation
 
 Postly uses a standardized JSON response envelope. For testing and exploration, import the provided Postman collection.
 
 *   **Postman Collection**: [postman_collection.json](./postman_collection.json)
-*   **Request Groups**:
-    *   **Auth**: Secure JWT-based registration, login, and rotation.
-    *   **User**: Profile management and encrypted social account linking.
-    *   **Content**: Direct access to the AI generation engine.
-    *   **Posts**: Management of publishing lifecycles.
-    *   **Dashboard**: High-level statistics and performance metrics.
+*   **Base URL**: `https://web-production-2e4e19.up.railway.app`
 
 ---
 
-## 🚀 Railway Deployment
+## Testing
 
-Postly is optimized for Railway.app with zero-downtime deployment:
-
-1.  `railway login`
-2.  `railway add postgres` and `railway add redis`
-3.  `railway up`
-4.  Set variables: `JWT_ACCESS_SECRET`, `ENCRYPTION_KEY`, `OPENAI_API_KEY`, etc.
-5.  Verification: Check the `/health` endpoint and use `/api/bot/status` for webhook info.
-
----
-
-## 🧪 Testing
-
-The project includes an extensive suite of integration and unit tests.
+I wrote a bunch of tests to make sure the core logic works.
 ```bash
 npm test
 ```
-Tests cover **Auth Rotation**, **Content Validation**, **Queue Orchestration**, and **Database Persistence**.
+The tests cover Auth, Content generation, and the Queue.
+
+---
 
 ## AI Model Architecture
 
@@ -153,23 +157,20 @@ Postly supports two model options throughout the API: `openai` and `anthropic`.
 | `openai`    | GPT-4o (OpenAI)   | ✅ Live        |
 | `anthropic` | Claude Sonnet (Anthropic) | ⚠️ Fallback active |
 
-**Anthropic fallback note:** The Anthropic integration is fully architected using the correct interface (same function signature, same return shape, commented production code in `src/services/anthropic.js`). Due to API billing constraints during development, the anthropic service currently routes internally through Groq (Llama 3.3 70B via OpenAI-compatible SDK) as a temporary fallback. Switching to the real Anthropic SDK requires:
-1. Adding `ANTHROPIC_API_KEY` to environment variables
-2. Uncommenting the production block in `src/services/anthropic.js`
-3. No other changes needed — the interface is identical.
+---
 
-## ⚠️ Known Limitations
+## Known Limitations
 
-*   **OAuth Scaffolding**: Social account linking currently uses token-based payloads; the full redirect-based OAuth flow is scaffolded in `auth.js`.
-*   **Platform Stubs**: The `platformWorker` uses sophisticated logged stubs for the final API handoff to prevent accidental live posting during evaluation.
-*   **Rate Limits**: Basic IP-based rate limiting is enabled; production-scale usage would require Redis-backed global limiting.
+*   **Platform Stubs**: The platform worker logs what it would post but doesn't actually hit Twitter/LinkedIn APIs — I didn't want to spam real accounts during testing and getting OAuth approved takes longer than 4 days. The publishing pipeline, queue, retry logic, and status tracking all work correctly end to end — the last mile API call is stubbed.
+*   **OAuth**: Right now account linking uses manual tokens; I didn't have time to finish the full OAuth redirect flow.
+*   **Rate Limits**: I added some basic rate limiting but it's not ready for massive scale yet.
 
 ---
 
-## 🎥 Demo Walkthrough Checklist
+## Demo Walkthrough Checklist
 
-For your submission recording, follow this sequence:
 1.  **Mobile Flow**: Open Telegram and send `/post`.
+1.5 **Link Account**: Send `/login <your_access_token>` to link your account — without this, `/post` will return an error. Get the token from step 6 of the register flow.
 2.  **Selection**: Walk through the picker steps (Type -> Platforms -> Tone -> Model).
 3.  **Input**: Send a creative idea text.
 4.  **Generation**: Showcase the generated Markdown preview in the bot.
