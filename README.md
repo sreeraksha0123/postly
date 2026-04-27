@@ -2,11 +2,11 @@
 
 ## Live API
 
-https://web-production-2e4e19.up.railway.app
+[https://web-production-06a30.up.railway.app](https://web-production-06a30.up.railway.app/)
 
 ### Health Check
 
-https://web-production-2e4e19.up.railway.app/health
+https://web-production-06a30.up.railway.app/health
 
 ---
 
