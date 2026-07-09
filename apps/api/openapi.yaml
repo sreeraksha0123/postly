@@ -1,0 +1,96 @@
+openapi: 3.0.3
+info:
+  title: Postly API
+  version: 1.0.0
+  description: Multi-agent AI content orchestration platform
+servers:
+  - url: http://localhost:4000
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                name: { type: string }
+      responses:
+        "201": { description: Created }
+  /api/auth/login:
+    post:
+      summary: Log in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: OK }
+  /api/campaigns:
+    get:
+      summary: List campaigns for the authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Create a campaign and enqueue the agent pipeline
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                idea: { type: string }
+                platforms:
+                  type: array
+                  items: { type: string, enum: [linkedin, twitter, instagram, threads] }
+                scheduledAt: { type: string, format: date-time }
+                brandVoice: { type: string }
+      responses:
+        "201": { description: Created }
+  /api/campaigns/{id}:
+    get:
+      summary: Get campaign detail including agent executions and quality checks
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: OK }
+  /api/campaigns/{id}/retry:
+    post:
+      summary: Re-enqueue a failed campaign
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "202": { description: Accepted }
+  /api/analytics/overview:
+    get:
+      summary: Aggregate analytics across the user's campaigns
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: OK }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

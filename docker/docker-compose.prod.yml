@@ -1,0 +1,39 @@
+version: "3.9"
+# Overlay for production: scale workers, remove dev bind-mounts, add restart policies.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+services:
+  api:
+    restart: always
+    environment:
+      NODE_ENV: production
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  workers:
+    restart: always
+    environment:
+      NODE_ENV: production
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+  frontend:
+    restart: always
+
+  postgres:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  redis:
+    restart: always

@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postly-config
+  namespace: postly
+data:
+  NODE_ENV: "production"
+  API_PORT: "4000"
+  REDIS_HOST: "postly-redis"
+  REDIS_PORT: "6379"
+  VECTOR_STORE_DRIVER: "pgvector"
+  QUEUE_CONCURRENCY: "10"
+  QUEUE_MAX_RETRIES: "5"
+  QUEUE_BACKOFF_MS: "2000"
+  DEFAULT_MODEL_PROVIDER: "anthropic"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postly-secrets
+  namespace: postly
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://postly:postly@postly-postgres:5432/postly"
+  OPENAI_API_KEY: "REPLACE_ME"
+  ANTHROPIC_API_KEY: "REPLACE_ME"
+  GOOGLE_AI_API_KEY: "REPLACE_ME"
+  PINECONE_API_KEY: "REPLACE_ME"
+  JWT_SECRET: "REPLACE_ME_32_CHARS_MIN"
+  LINKEDIN_ACCESS_TOKEN: "REPLACE_ME"
+  TWITTER_BEARER_TOKEN: "REPLACE_ME"
+  INSTAGRAM_ACCESS_TOKEN: "REPLACE_ME"
+  THREADS_ACCESS_TOKEN: "REPLACE_ME"

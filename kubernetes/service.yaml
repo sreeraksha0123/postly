@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: postly
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postly-api
+  namespace: postly
+spec:
+  selector: { app: postly-api }
+  ports:
+    - port: 4000
+      targetPort: 4000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postly-frontend
+  namespace: postly
+spec:
+  selector: { app: postly-frontend }
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: postly-ingress
+  namespace: postly
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: postly.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service: { name: postly-api, port: { number: 4000 } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: postly-frontend, port: { number: 3000 } }

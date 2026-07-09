@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postly-api
+  namespace: postly
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: postly-api }
+  template:
+    metadata:
+      labels: { app: postly-api }
+    spec:
+      containers:
+        - name: api
+          image: postly/api:latest
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef: { name: postly-config }
+            - secretRef: { name: postly-secrets }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+          readinessProbe:
+            httpGet: { path: /health, port: 4000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 4000 }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: postly-api-hpa
+  namespace: postly
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: postly-api
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postly-workers
+  namespace: postly
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: postly-workers }
+  template:
+    metadata:
+      labels: { app: postly-workers }
+    spec:
+      containers:
+        - name: workers
+          image: postly/workers:latest
+          envFrom:
+            - configMapRef: { name: postly-config }
+            - secretRef: { name: postly-secrets }
+          resources:
+            requests: { cpu: "250m", memory: "256Mi" }
+            limits: { cpu: "1", memory: "512Mi" }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: postly-workers-hpa
+  namespace: postly
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: postly-workers
+  minReplicas: 3
+  maxReplicas: 15
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 75 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postly-frontend
+  namespace: postly
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: postly-frontend }
+  template:
+    metadata:
+      labels: { app: postly-frontend }
+    spec:
+      containers:
+        - name: frontend
+          image: postly/frontend:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }

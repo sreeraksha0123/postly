@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "declaration": false,
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "@postly/shared": ["packages/shared/src"],
+      "@postly/agents": ["packages/agents/src"],
+      "@postly/rag": ["packages/rag/src"],
+      "@postly/queues": ["packages/queues/src"],
+      "@postly/integrations": ["packages/integrations/src"]
+    }
+  },
+  "include": [
+    "packages/shared/src/**/*.ts",
+    "packages/rag/src/**/*.ts",
+    "packages/agents/src/**/*.ts",
+    "packages/queues/src/**/*.ts",
+    "packages/integrations/src/**/*.ts",
+    "apps/api/src/**/*.ts",
+    "apps/workers/src/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "apps/frontend"]
+}

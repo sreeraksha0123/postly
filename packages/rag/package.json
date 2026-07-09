@@ -1,0 +1,15 @@
+{
+  "name": "@postly/rag",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@postly/shared": "*",
+    "pg": "^8.11.5",
+    "@pinecone-database/pinecone": "^2.2.2",
+    "openai": "^4.47.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.6"
+  }
+}
